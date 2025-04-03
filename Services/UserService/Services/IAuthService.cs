@@ -4,7 +4,7 @@ namespace UserService.Services
 {
     public interface IAuthService
     {
-        string GenerateJwtToken(User user);
+        string GenerateJwtToken(ApplicationUser user);
 
     }
 }

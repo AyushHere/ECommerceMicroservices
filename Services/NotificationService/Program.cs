@@ -1,6 +1,16 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.EntityFrameworkCore;
+using NotificationService.Data;
+using NotificationService.Messaging;
+using NotificationService.Repository;
+using NotificationService.Services;
 
-// Add services to the container.
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<NotificationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService.Services.NotificationService>();
+builder.Services.AddHostedService<RabbitMQConsumer>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

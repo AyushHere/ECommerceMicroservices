@@ -4,7 +4,7 @@ namespace UserService.Repositories
 {
     public interface IUserRepository
     {
-        Task<User> GetUserByEmail(string email);
-        Task AddUser(User user);
+        Task<ApplicationUser> GetUserByEmail(string email);
+        Task AddUser(ApplicationUser user);
     }
 }

@@ -10,7 +10,7 @@ namespace UserService.Services
     {
         private readonly string _secretKey = "your_secret_key_here";
 
-        public string GenerateJwtToken(User user)
+        public string GenerateJwtToken(ApplicationUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_secretKey);

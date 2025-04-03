@@ -9,12 +9,12 @@ namespace UserService.Repositories
         private readonly ApplicationDbContext _context;
         public UserRepository(ApplicationDbContext context) { _context = context; }
 
-        public async Task<User> GetUserByEmail(string email)
+        public async Task<ApplicationUser> GetUserByEmail(string email)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task AddUser(User user)
+        public async Task AddUser(ApplicationUser user)
         {
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();

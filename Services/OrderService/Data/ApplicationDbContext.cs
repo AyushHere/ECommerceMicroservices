@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using UserService.Models;
+using OrderService.Models;
 
-namespace UserService.Data
+namespace OrderService.Data
 {
     public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<ApplicationUser> Users { get; set; }
+        public DbSet<Order> Orders { get; set; }
     }
 }
