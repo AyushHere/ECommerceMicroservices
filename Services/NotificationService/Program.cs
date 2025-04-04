@@ -1,3 +1,4 @@
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Data;
 using NotificationService.Messaging;
@@ -10,7 +11,22 @@ builder.Services.AddDbContext<NotificationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService.Services.NotificationService>();
-builder.Services.AddHostedService<RabbitMQConsumer>();
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<OrderNotificationConsumer>();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host("localhost", "/", h => { });
+
+        cfg.ReceiveEndpoint("order-notifications-queue", e =>
+        {
+            e.ConfigureConsumer<OrderNotificationConsumer>(context);
+        });
+    });
+});
+
+builder.Services.AddMassTransitHostedService();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

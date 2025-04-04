@@ -8,7 +8,7 @@ namespace NotificationService.Model
         public int Id { get; set; }
 
         [Required]
-        public string Recipient { get; set; } // Email or Phone Number
+        public string Recipient { get; set; }
 
         [Required]
         public string Message { get; set; }

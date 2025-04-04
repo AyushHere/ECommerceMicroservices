@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MassTransit;
+using Microsoft.AspNetCore.Mvc;
 using OrderService.Models;
-using OrderService.Services;
 namespace OrderService.Controllers
 {
     [ApiController]
@@ -8,10 +8,12 @@ namespace OrderService.Controllers
     public class OrderController : ControllerBase
     {
         private readonly OrderService.Services.OrderService _orderService;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public OrderController(OrderService.Services.OrderService orderService)
+        public OrderController(OrderService.Services.OrderService orderService, IPublishEndpoint publishEndpoint)
         {
             _orderService = orderService;
+            _publishEndpoint = publishEndpoint;
         }
 
         [HttpGet]
@@ -28,16 +30,16 @@ namespace OrderService.Controllers
             return Ok(order);
         }
 
-        [HttpPost]
-        public async Task<ActionResult> PlaceOrder(Order order)
-        {
-            var success = await _orderService.PlaceOrder(order);
-            if (!success)
-            {
-                return BadRequest("Order could not be placed. Product may be out of stock.");
-            }
-            return Ok("Order placed successfully.");
-        }
+        //[HttpPost]
+        //public async Task<ActionResult> PlaceOrder(Order order)
+        //{
+        //    var success = await _orderService.PlaceOrder(order);
+        //    if (!success)
+        //    {
+        //        return BadRequest("Order could not be placed. Product may be out of stock.");
+        //    }
+        //    return Ok("Order placed successfully.");
+        //}
 
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateOrder(int id, Order order)
@@ -52,6 +54,22 @@ namespace OrderService.Controllers
         {
             await _orderService.DeleteOrder(id);
             return NoContent();
+        }
+        [HttpPost("place")]
+        public async Task<IActionResult> PlaceOrder()
+        {
+            // Your order processing logic here...
+            var orderId = Guid.NewGuid().ToString();
+
+            var notification = new OrderNotificationContract
+            {
+                OrderId = orderId,
+                Message = "Your order has been placed successfully!"
+            };
+
+            await _publishEndpoint.Publish(notification);
+
+            return Ok(new { OrderId = orderId, Status = "Order placed and notification sent" });
         }
     }
 }

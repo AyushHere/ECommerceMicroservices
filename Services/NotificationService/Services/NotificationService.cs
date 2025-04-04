@@ -9,17 +9,10 @@ namespace NotificationService.Services
 
     public class NotificationService : INotificationService
     {
-        private readonly INotificationRepository _repository;
-
-        public NotificationService(INotificationRepository repository)
+        public Task SendNotification(string message)
         {
-            _repository = repository;
-        }
-
-        public async Task SendNotification(string message)
-        {
-            Console.WriteLine($"Sending Notification: {message}");
-            await _repository.SaveNotification(message);
+            Console.WriteLine($"[NotificationService] Sending notification: {message}");
+            return Task.CompletedTask;
         }
     }
 }

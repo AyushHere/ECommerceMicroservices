@@ -1,4 +1,4 @@
-﻿using MassTransit.SqlTransport;
+﻿using NotificationService.Data;
 using NotificationService.Model;
 
 namespace NotificationService.Repository
@@ -10,9 +10,9 @@ namespace NotificationService.Repository
 
     public class NotificationRepository : INotificationRepository
     {
-        private readonly NotificationContext _context;
+        private readonly NotificationDbContext _context;
 
-        public NotificationRepository(NotificationContext context)
+        public NotificationRepository(NotificationDbContext context)
         {
             _context = context;
         }

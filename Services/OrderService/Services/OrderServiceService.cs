@@ -1,6 +1,5 @@
 ﻿using OrderService.Models;
 using OrderService.Repositories;
-using OrderService.Intercomms;
 using System.Net.Http;
 using System.Text.Json;
 using RabbitMQ.Client;
@@ -43,23 +42,23 @@ namespace OrderService.Services
         }
 
 
-        public async Task<bool> PlaceOrder(Order order)
-        {
-            // Save Order
-            await _orderRepository.AddOrder(order);
+        //public async Task<bool> PlaceOrder(Order order)
+        //{
+        //    // Save Order
+        //    await _orderRepository.AddOrder(order);
 
-            // Publish Notification to RabbitMQ
-            var factory = new ConnectionFactory { HostName = "localhost" };
-            using var connection = factory.CreateConnection();
-            using var channel = connection.CreateModel();
-            channel.QueueDeclare(queue: "OrderNotifications", durable: false, exclusive: false, autoDelete: false, arguments: null);
+        //    // Publish Notification to RabbitMQ
+        //    var factory = new ConnectionFactory { HostName = "localhost" };
+        //    using var connection = factory.CreateConnection();
+        //    using var channel = connection.CreateModel();
+        //    channel.QueueDeclare(queue: "OrderNotifications", durable: false, exclusive: false, autoDelete: false, arguments: null);
 
-            string message = $"Order {order.Id} placed successfully!";
-            var body = Encoding.UTF8.GetBytes(message);
-            channel.BasicPublish(exchange: "", routingKey: "OrderNotifications", basicProperties: null, body: body);
+        //    string message = $"Order {order.Id} placed successfully!";
+        //    var body = Encoding.UTF8.GetBytes(message);
+        //    channel.BasicPublish(exchange: "", routingKey: "OrderNotifications", basicProperties: null, body: body);
 
-            return true;
-        }
+        //    return true;
+        //}
     }
 
     // Represents Product Service response
