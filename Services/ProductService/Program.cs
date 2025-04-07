@@ -1,7 +1,9 @@
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using ProductService;
 using ProductService.Data;
 using ProductService.Repositories;
 using System.Text;
@@ -36,7 +38,23 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Admin", policy =>
         policy.RequireRole("Admin"));
-   
+    options.AddPolicy("Seller", policy =>
+      policy.RequireRole("Seller"));
+
+});
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<StockCheckConsumer>();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host("amqps://pgtcltsm:h3LEbHTgpycdUiPyIfDaOaPPiK7DYaOO@stingray.rmq.cloudamqp.com/pgtcltsm");
+
+        cfg.ReceiveEndpoint("stock-check-queue", e =>
+        {
+            e.ConfigureConsumer<StockCheckConsumer>(context);
+        });
+    });
 });
 
 

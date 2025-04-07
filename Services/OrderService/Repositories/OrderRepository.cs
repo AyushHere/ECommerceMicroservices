@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MessagingContracts;
+using Microsoft.EntityFrameworkCore;
 using OrderService.Data;
 using OrderService.Models;
 
@@ -8,6 +9,7 @@ namespace   OrderService.Repositories
     public class OrderRepository : IOrderRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly IStockCheckResponse _stockCheckClient;
 
         public OrderRepository(ApplicationDbContext context)
         {
@@ -45,5 +47,6 @@ namespace   OrderService.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
     }
 }

@@ -30,6 +30,7 @@ namespace UserService.Controllers
             return Ok(product);
         }
         [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "Seller")]
         [HttpPost]
         public async Task<ActionResult> AddProduct(Product product)
         {
@@ -37,6 +38,7 @@ namespace UserService.Controllers
             return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
         }
         [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "Seller")]
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateProduct(int id, Product product)
         {
@@ -45,6 +47,7 @@ namespace UserService.Controllers
             return NoContent();
         }
         [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "Seller")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteProduct(int id)
         {

@@ -24,4 +24,8 @@
     <Folder Include="Intercomms\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MessagingContracts\MessagingContracts.csproj" />
+  </ItemGroup>
+
 </Project>

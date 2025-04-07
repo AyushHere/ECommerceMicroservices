@@ -1,4 +1,5 @@
 using MassTransit;
+using MessagingContracts;
 using Microsoft.EntityFrameworkCore;
 using OrderService.Data;
 using OrderService.Repositories;
@@ -16,9 +17,12 @@ builder.Services.AddMassTransit(x =>
 {
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host("localhost", "/", h => { });
+        cfg.Host("amqps://pgtcltsm:h3LEbHTgpycdUiPyIfDaOaPPiK7DYaOO@stingray.rmq.cloudamqp.com/pgtcltsm");
     });
+
+    x.AddRequestClient<IStockCheckRequest>(); 
 });
+
 builder.Services.AddMassTransitHostedService();
 builder.Services.AddControllers();
 

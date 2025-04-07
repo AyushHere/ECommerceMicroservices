@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using MessagingContracts;
 using Microsoft.AspNetCore.Mvc;
 using OrderService.Models;
 namespace OrderService.Controllers
@@ -9,6 +10,7 @@ namespace OrderService.Controllers
     {
         private readonly OrderService.Services.OrderService _orderService;
         private readonly IPublishEndpoint _publishEndpoint;
+        private readonly IRequestClient<IStockCheckRequest> _stockClient;
 
         public OrderController(OrderService.Services.OrderService orderService, IPublishEndpoint publishEndpoint)
         {
@@ -56,9 +58,19 @@ namespace OrderService.Controllers
             return NoContent();
         }
         [HttpPost("place")]
-        public async Task<IActionResult> PlaceOrder()
+        public async Task<IActionResult> PlaceOrder([FromQuery] int id, [FromQuery] int quantity)
         {
-            // Your order processing logic here...
+            var response = await _stockClient.GetResponse<IStockCheckResponse>(new
+            {
+                ProductId = id,
+                Quantity = quantity
+            });
+
+            
+            if (!response.Message.IsAvailable)
+            {
+                return BadRequest("Product is out of stock");
+            }
             var orderId = Guid.NewGuid().ToString();
 
             var notification = new OrderNotificationContract

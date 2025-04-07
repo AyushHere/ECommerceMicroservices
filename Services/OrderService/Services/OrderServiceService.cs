@@ -4,19 +4,23 @@ using System.Net.Http;
 using System.Text.Json;
 using RabbitMQ.Client;
 using System.Text;
+using MassTransit;
+using MessagingContracts;
 
 
 namespace OrderService.Services
 {
-    public class OrderService
+    public class OrderService 
     {
         private readonly IOrderRepository _orderRepository;
         private readonly HttpClient _httpClient;
+        private readonly IRequestClient<IStockCheckRequest> _stockCheckClient;
 
-        public OrderService(IOrderRepository orderRepository, HttpClient httpClient)
+        public OrderService(IOrderRepository orderRepository, HttpClient httpClient, IRequestClient<IStockCheckRequest> stockCheckClient)
         {
             _orderRepository = orderRepository;
             _httpClient = httpClient;
+            _stockCheckClient = stockCheckClient;
         }
 
         public async Task<IEnumerable<Order>> GetAllOrders()
@@ -39,26 +43,8 @@ namespace OrderService.Services
         public async Task DeleteOrder(int id)
         {
             await _orderRepository.DeleteOrder(id);
-        }
-
-
-        //public async Task<bool> PlaceOrder(Order order)
-        //{
-        //    // Save Order
-        //    await _orderRepository.AddOrder(order);
-
-        //    // Publish Notification to RabbitMQ
-        //    var factory = new ConnectionFactory { HostName = "localhost" };
-        //    using var connection = factory.CreateConnection();
-        //    using var channel = connection.CreateModel();
-        //    channel.QueueDeclare(queue: "OrderNotifications", durable: false, exclusive: false, autoDelete: false, arguments: null);
-
-        //    string message = $"Order {order.Id} placed successfully!";
-        //    var body = Encoding.UTF8.GetBytes(message);
-        //    channel.BasicPublish(exchange: "", routingKey: "OrderNotifications", basicProperties: null, body: body);
-
-        //    return true;
-        //}
+        }  
+        
     }
 
     // Represents Product Service response
