@@ -3,7 +3,7 @@
 public interface IStockCheckRequest
 {
   
-        Guid ProductId { get; }
+        int ProductId { get; }
         int Quantity { get; }
     
 }

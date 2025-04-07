@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace MessagingContracts
 {
-    public interface IStockCheckResponse
+    public interface IStockUpdate
     {
         int ProductId { get; }
-        bool IsAvailable { get; }
+        int Quantity { get; }
+        string Status { get; }
     }
 }

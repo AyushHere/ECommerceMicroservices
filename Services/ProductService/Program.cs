@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using ProductService;
 using ProductService.Data;
 using ProductService.Repositories;
+using ProductService.Services;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,6 +54,10 @@ builder.Services.AddMassTransit(x =>
         cfg.ReceiveEndpoint("stock-check-queue", e =>
         {
             e.ConfigureConsumer<StockCheckConsumer>(context);
+        });
+        cfg.ReceiveEndpoint("product_stock_update", e =>
+        {
+            e.ConfigureConsumer<ProductStockConsumer>(context);
         });
     });
 });
