@@ -11,5 +11,6 @@ namespace OrderService.Repositories
         Task AddOrder(Order order);
         Task UpdateOrder(Order order);
         Task DeleteOrder(int id);
+        Task AddOrderAsync(Order order);
     }
 }

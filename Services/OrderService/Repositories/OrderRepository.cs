@@ -48,5 +48,9 @@ namespace   OrderService.Repositories
             }
         }
 
+        public Task AddOrderAsync(Order order)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
