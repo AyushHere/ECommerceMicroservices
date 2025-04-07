@@ -19,6 +19,6 @@ namespace ProductService.Models
         [Required]
         public int Stock { get; set; }
 
-        public int SellerId { get; set; } // Links the product to a seller
+        public int SellerId { get; set; } 
     }
 }

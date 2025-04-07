@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using ProductService.Repositories;
 using ProductService.Models;
+using Microsoft.AspNetCore.Authorization;
 namespace UserService.Controllers
 {
     [ApiController]
@@ -28,14 +29,14 @@ namespace UserService.Controllers
             if (product == null) return NotFound();
             return Ok(product);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult> AddProduct(Product product)
         {
             await _productService.AddProduct(product);
             return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
         }
-
+        [Authorize(Policy = "Admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateProduct(int id, Product product)
         {
@@ -43,7 +44,7 @@ namespace UserService.Controllers
             await _productService.UpdateProduct(product);
             return NoContent();
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteProduct(int id)
         {

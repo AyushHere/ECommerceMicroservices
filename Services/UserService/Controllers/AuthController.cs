@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -28,10 +29,13 @@ namespace UserService.Controllers
             {
                 UserName = model.Email,
                 Email = model.Email,
-                Name = model.FullName
+                Name = model.FullName,
+                Role = model.Role
             };
+            user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, model.Password);
 
-            var result = await _userManager.CreateAsync(user, model.Password);
+            // then save without password parameter
+            var result = await _userManager.CreateAsync(user);
 
             if (!result.Succeeded)
             {
@@ -44,8 +48,11 @@ namespace UserService.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)
         {
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
+
+            var user = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.Email == model.Email);
+            var varified = await _userManager.CheckPasswordAsync(user, model.Password);
+            if (user == null || varified)
             {
                 return Unauthorized();
             }
@@ -69,8 +76,8 @@ namespace UserService.Controllers
     {
         new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
         new Claim(JwtRegisteredClaimNames.Email, user.Email),
-        new Claim("FullName", user.Name ?? "")
-    };
+        new Claim("FullName", user.Name ?? ""),
+        new Claim("Role", user.Role ?? "")            };
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -79,7 +86,7 @@ namespace UserService.Controllers
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(expiryInHours), 
+                Expires = DateTime.UtcNow.AddHours(expiryInHours),
                 SigningCredentials = creds,
                 Issuer = jwtSettings["Issuer"],
                 Audience = jwtSettings["Audience"]
