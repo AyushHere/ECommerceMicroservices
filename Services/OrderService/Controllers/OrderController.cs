@@ -2,7 +2,11 @@
 using MessagingContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using OrderService.Models;
+using OrderService.Services;
+using System.Net.Http.Headers;
+
 namespace OrderService.Controllers
 {
     [ApiController]
@@ -37,7 +41,7 @@ namespace OrderService.Controllers
 
         [Authorize(Policy = "Customer")]
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateOrder(int id, Order order)
+        public async Task<ActionResult> UpdateOrder(string id, Order order)
         {
             if (id != order.Id) return BadRequest();
             await _orderService.UpdateOrder(order);
@@ -55,32 +59,57 @@ namespace OrderService.Controllers
         [HttpPost("place")]
         public async Task<IActionResult> PlaceOrder([FromQuery] int id, [FromQuery] int quantity)
         {
-            var response = await _stockClient.GetResponse<IStockCheckResponse>(new
+            var stockResponse = await _stockClient.GetResponse<IStockCheckResponse>(new
             {
                 ProductId = id,
                 Quantity = quantity
             });
 
-            
-            if (!response.Message.IsAvailable)
+            if (!stockResponse.Message.IsAvailable)
             {
                 return BadRequest("Product is out of stock");
             }
+
+            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = User.FindFirst("UserId")?.Value;
+
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var url = $"http://localhost:5000/products/api/products/{id}";
+
+            var response = await httpClient.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+            {
+                return StatusCode((int)response.StatusCode, "Failed to fetch product info");
+            }
+
+            var productJson = await response.Content.ReadAsStringAsync();
+            var productDetails = JsonConvert.DeserializeObject<Product>(productJson);
+
             var orderId = Guid.NewGuid().ToString();
+            var addOrder = new Order
+            {
+                Id = orderId,
+                ProductId = id,
+                Quantity = quantity,
+                UserId = userId,
+                TotalPrice = quantity * productDetails.Price,
+            };
+
+            await _orderService.AddOrder(addOrder);
+
+            await _publishEndpoint.Publish(new StockUpdateMessage
+            {
+                ProductId = id,
+                Quantity = quantity
+            });
 
             var notification = new OrderNotificationContract
             {
                 OrderId = orderId,
                 Message = "Your order has been placed successfully!"
             };
-            await _publishEndpoint.Publish(new StockUpdateMessage
-            {
-                ProductId = "12345",
-                Quantity = 2
-            });
-
             await _publishEndpoint.Publish(notification);
-
             return Ok(new { OrderId = orderId, Status = "Order placed and notification sent" });
         }
     }

@@ -43,8 +43,13 @@ namespace OrderService.Services
         public async Task DeleteOrder(int id)
         {
             await _orderRepository.DeleteOrder(id);
-        }  
-        
+        }
+
+
+        public async Task AddOrder(Order order)
+        {
+            await _orderRepository.AddOrder(order);
+        }
     }
 
     // Represents Product Service response

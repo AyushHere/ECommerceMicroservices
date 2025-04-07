@@ -65,7 +65,6 @@ namespace UserService.Controllers
         {
             var jwtSettings = _configuration.GetSection("JwtCreds");
 
-            // 🔹 Ensure Key is not null or empty
             var keyString = jwtSettings["Key"];
             if (string.IsNullOrEmpty(keyString))
                 throw new InvalidOperationException("JWT Key is missing in configuration.");
@@ -77,7 +76,9 @@ namespace UserService.Controllers
         new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
         new Claim(JwtRegisteredClaimNames.Email, user.Email),
         new Claim("FullName", user.Name ?? ""),
-        new Claim("Role", user.Role ?? "")            };
+        new Claim("Role", user.Role ?? "") ,         
+        new Claim("UserId", user.Id.ToString() ?? "")   
+        };
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
