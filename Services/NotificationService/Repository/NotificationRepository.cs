@@ -1,11 +1,12 @@
-﻿using NotificationService.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using NotificationService.Data;
 using NotificationService.Model;
 
 namespace NotificationService.Repository
 {
     public interface INotificationRepository
     {
-        Task SaveNotification(string message);
+        Task SaveAsync(Notification notification);
     }
 
     public class NotificationRepository : INotificationRepository
@@ -16,15 +17,9 @@ namespace NotificationService.Repository
         {
             _context = context;
         }
-
-        public async Task SaveNotification(string message)
+        public async Task SaveAsync(Notification notification)
         {
-            var notification = new Notification
-            {
-                Recipient = "user@example.com",
-                Message = message
-            };
-
+            Console.WriteLine($"[Saved] To: {notification.Recipient}, Subject: {notification.Subject}");
             _context.Notifications.Add(notification);
             await _context.SaveChangesAsync();
         }

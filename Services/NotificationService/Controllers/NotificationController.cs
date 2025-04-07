@@ -18,7 +18,7 @@ namespace NotificationService.Controllers
         [HttpPost]
         public async Task<ActionResult> SendNotification([FromBody] string message)
         {
-            await _notificationService.SendNotification(message);
+          //  await _notificationService.SendNotification(message);
             return Ok("Notification Sent!");
         }
     }

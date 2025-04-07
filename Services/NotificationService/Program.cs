@@ -1,34 +1,20 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using NotificationService.Consumers;
 using NotificationService.Data;
 using NotificationService.Messaging;
 using NotificationService.Repository;
 using NotificationService.Services;
 
 
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<NotificationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddMassTransitWithRabbitMq(builder.Configuration);
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<INotificationService, NotificationService.Services.NotificationService>();
-builder.Services.AddMassTransit(x =>
-{
-    x.AddConsumer<OrderNotificationConsumer>();
-
-    x.UsingRabbitMq((context, cfg) =>
-    {
-        cfg.Host("localhost", "/", h => { });
-
-        cfg.ReceiveEndpoint("order-notifications-queue", e =>
-        {
-            e.ConfigureConsumer<OrderNotificationConsumer>(context);
-        });
-    });
-});
-
-builder.Services.AddMassTransitHostedService();
-builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>(); builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks()
     .AddSqlServer(
