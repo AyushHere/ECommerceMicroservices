@@ -29,7 +29,7 @@ namespace UserService.Controllers
             if (product == null) return NotFound();
             return Ok(product);
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "Admin")]
         [HttpPost]
         public async Task<ActionResult> AddProduct(Product product)
         {
@@ -44,7 +44,7 @@ namespace UserService.Controllers
             await _productService.UpdateProduct(product);
             return NoContent();
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteProduct(int id)
         {

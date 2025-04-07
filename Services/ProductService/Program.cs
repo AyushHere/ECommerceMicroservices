@@ -69,7 +69,14 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-
+builder.Services.AddHealthChecks()
+    .AddSqlServer(
+        connectionString: builder.Configuration.GetConnectionString("DefaultConnection")!,
+        healthQuery: "SELECT 1",
+        name: "sql",
+        failureStatus: Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Unhealthy,
+        tags: new[] { "db", "sql"
+     });
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -84,5 +91,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.MapHealthChecks("/health");
 app.Run();
