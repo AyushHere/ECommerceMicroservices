@@ -78,6 +78,7 @@ namespace OrderService.Controllers
                 ProductId = "12345",
                 Quantity = 2
             });
+
             await _publishEndpoint.Publish(notification);
 
             return Ok(new { OrderId = orderId, Status = "Order placed and notification sent" });

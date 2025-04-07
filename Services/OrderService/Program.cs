@@ -1,8 +1,11 @@
 using MassTransit;
 using MessagingContracts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using OrderService.Data;
 using OrderService.Repositories;
+using System.Text;
 
 
 
@@ -23,6 +26,32 @@ builder.Services.AddMassTransit(x =>
     x.AddRequestClient<IStockCheckRequest>(); 
 });
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            RoleClaimType = "role",
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["JwtCreds:Issuer"],
+            ValidAudience = builder.Configuration["JwtCreds:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtCreds:Key"]))
+        };
+    });
+
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy =>
+        policy.RequireRole("Admin"));
+    options.AddPolicy("Seller", policy =>
+      policy.RequireRole("Seller"));
+    options.AddPolicy("Customer", policy =>
+     policy.RequireRole("Customer"));
+});
 builder.Services.AddMassTransitHostedService();
 builder.Services.AddControllers();
 
